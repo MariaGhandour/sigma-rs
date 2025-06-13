@@ -234,3 +234,24 @@ where
         <<G as Group>::Scalar as PrimeField>::from_repr(repr).expect("Error")
     }
 }
+#[test]
+fn test_keccakf_compare_with_tiny_keccak() {
+    use spongefish::duplex_sponge::Permutation;
+    
+    let mut sigma_keccak = KeccakPermutationState::default(); 
+    let mut sf_keccak = spongefish::keccak::AlignedKeccakF1600::new([0; 32]); 
+
+    for _ in 0..10 {
+        sigma_keccak.permute();
+        sf_keccak.permute();
+    }
+
+    // Compare your sigma_keccak with spongefish
+    assert_eq!(
+        sigma_keccak.state,
+        sf_keccak.as_ref(),
+        "Keccak states differ between sigma-rs and spongefish"
+    );
+
+}
+
