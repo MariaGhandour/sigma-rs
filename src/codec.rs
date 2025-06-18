@@ -2,6 +2,7 @@
 
 pub use crate::duplex_sponge::keccak::KeccakDuplexSponge;
 use crate::duplex_sponge::{shake::ShakeDuplexSponge, DuplexSpongeInterface};
+use bls12_381::G1Projective;
 use ff::PrimeField;
 use group::{Group, GroupEncoding};
 use num_bigint::BigUint;
@@ -96,3 +97,52 @@ pub type KeccakByteSchnorrCodec<G> = ByteSchnorrCodec<G, KeccakDuplexSponge>;
 
 /// Type alias for a SHAKE-based ByteSchnorrCodec.
 pub type ShakeCodec<G> = ByteSchnorrCodec<G, ShakeDuplexSponge>;
+
+#[test]
+fn test_squeeze_zero_behavior_in_sigma_rs() {
+    let domain_sep = b"01234567890123456789012345678901";
+    let mut codec1 = ByteSchnorrCodec::<G1Projective, KeccakDuplexSponge>::new(domain_sep);
+
+    codec1.prover_message(b"message test");
+
+    let mut codec2 = codec1.clone();
+
+    let squeezed_zero = codec1.hasher.squeeze(0);
+    assert!(squeezed_zero.is_empty(), "squeeze(0) should return an empty vector");
+
+    let output1 = codec1.hasher.squeeze(10);
+    let output2 = codec2.hasher.squeeze(10);
+
+    assert_eq!(
+        output1, output2,
+        "squeeze(0) should not change the state, so outputs must be identical"
+    );
+}
+/* 
+#[test]
+fn test_sigma_and_spongefish_match() {
+    // A known domain separator (tag)
+    let tag = [0xAB; 32];
+    let input = b"hello world sponge test";
+
+    // 1. Sigma-rs sponge
+    let mut sigma = KeccakDuplexSponge::new(&tag);
+    sigma.absorb(input);
+    let out_sigma_vec = sigma.squeeze(32);
+    let mut out_sigma = [0u8; 32];
+    out_sigma.copy_from_slice(&out_sigma_vec);
+
+
+    // 2. Spongefish sponge
+     let mut spongefish = Keccak::new(tag);
+    spongefish.absorb_unchecked(input);
+    let mut out_spongefish = [0u8; 32];
+    spongefish.squeeze_unchecked(&mut out_spongefish);
+
+    // 3. Compare
+    assert_eq!(
+        out_sigma,
+        out_spongefish,
+        "Sponge outputs do not match!"
+    );
+}*/

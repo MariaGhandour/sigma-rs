@@ -1,0 +1,3 @@
+[submodule "spongefish"]
+	path = spongefish
+	url = https://github.com/arkworks-rs/spongefish
