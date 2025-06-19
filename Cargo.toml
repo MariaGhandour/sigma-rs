@@ -20,6 +20,7 @@ exclude = [
 ]
 
 [dependencies]
+bls12_381 = "0.8.0"
 ff = { version = "0.13", features = ["derive"] }
 group = "0.13.0"
 num-bigint = "0.4.6"
@@ -28,6 +29,7 @@ rand = "0.8.5"
 sha3 = "0.10.8"
 thiserror = "1"
 tiny-keccak = { version = "2.0.2", features = ["fips202"] }
+spongefish = { path = "../spongefish/spongefish" }
 
 [dev-dependencies]
 bls12_381 = "0.8.0"

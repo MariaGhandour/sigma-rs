@@ -2,6 +2,7 @@
 
 pub use crate::duplex_sponge::keccak::KeccakDuplexSponge;
 use crate::duplex_sponge::{shake::ShakeDuplexSponge, DuplexSpongeInterface};
+use bls12_381::G1Projective;
 use ff::PrimeField;
 use group::{Group, GroupEncoding};
 use num_bigint::BigUint;
@@ -96,3 +97,106 @@ pub type KeccakByteSchnorrCodec<G> = ByteSchnorrCodec<G, KeccakDuplexSponge>;
 
 /// Type alias for a SHAKE-based ByteSchnorrCodec.
 pub type ShakeCodec<G> = ByteSchnorrCodec<G, ShakeDuplexSponge>;
+
+#[cfg(test)]
+mod codec_tests {
+    use super::*;
+    use bls12_381::G1Projective;
+
+     #[test]
+    fn test_squeeze_zero_behavior_in_sigma_rs() {
+    let domain_sep = b"01234567890123456789012345678901";
+    let mut codec1 = ByteSchnorrCodec::<G1Projective, KeccakDuplexSponge>::new(domain_sep);
+
+    codec1.prover_message(b"message test");
+
+    let mut codec2 = codec1.clone();
+
+    let squeezed_zero = codec1.hasher.squeeze(0);
+    assert!(squeezed_zero.is_empty(), "squeeze(0) should return an empty vector");
+
+    let output1 = codec1.hasher.squeeze(10);
+    let output2 = codec2.hasher.squeeze(10);
+
+    assert_eq!(
+        output1, output2,
+        "squeeze(0) should not change the state, so outputs must be identical"
+    );
+} 
+
+    #[test]
+    fn test_absorb_squeeze_absorb_consistency() {
+        let domain_sep = b"edge-case-test-domain-absorb0000";
+        let mut codec1 = ByteSchnorrCodec::<G1Projective, KeccakDuplexSponge>::new(domain_sep);
+
+        codec1.prover_message(b"first");
+        let out1 = codec1.hasher.squeeze(16);
+        codec1.prover_message(b"second");
+        let out2 = codec1.hasher.squeeze(16);
+
+        // Create a new codec that absorbs "firstsecond" as one block
+        let mut codec2 = ByteSchnorrCodec::<G1Projective, KeccakDuplexSponge>::new(domain_sep);
+        codec2.prover_message(b"firstsecond");
+        let out_combined = codec2.hasher.squeeze(32);
+
+        assert_eq!(&out1[..], &out_combined[..16], "First squeeze should match");
+        assert_eq!(&out2[..], &out_combined[16..], "Second squeeze should match");
+    }
+
+    #[test]
+    fn test_associativity_of_absorb() {
+        let domain_sep = b"absorb-associativity-domain-----";
+        let mut codec1 = ByteSchnorrCodec::<G1Projective, KeccakDuplexSponge>::new(domain_sep);
+        codec1.prover_message(&[1, 2, 3, 4]);
+        let out1 = codec1.hasher.squeeze(16);
+
+        let mut codec2 = ByteSchnorrCodec::<G1Projective, KeccakDuplexSponge>::new(domain_sep);
+        codec2.prover_message(&[1, 2]);
+        codec2.prover_message(&[3, 4]);
+        let out2 = codec2.hasher.squeeze(16);
+
+        assert_eq!(out1, out2, "Absorbing in two steps should match combined absorb");
+    }
+
+    #[test]
+    fn test_tag_affects_output() {
+        let domain1 = b"domain-one-differs-here-00000000";
+        let domain2 = b"domain-two-differs-here-11111111";
+
+        let mut codec1 = ByteSchnorrCodec::<G1Projective, KeccakDuplexSponge>::new(domain1);
+        let mut codec2 = ByteSchnorrCodec::<G1Projective, KeccakDuplexSponge>::new(domain2);
+
+        codec1.prover_message(b"input");
+        codec2.prover_message(b"input");
+
+        let out1 = codec1.hasher.squeeze(16);
+        let out2 = codec2.hasher.squeeze(16);
+
+        assert_ne!(out1, out2, "Different domain separators must yield different outputs");
+    }
+
+    #[test]
+    fn test_clone_preserves_state() {
+        let domain = b"domain-for-clone-test-0000000000";
+        let mut codec1 = ByteSchnorrCodec::<G1Projective, KeccakDuplexSponge>::new(domain);
+        codec1.prover_message(b"hello");
+
+        let mut codec2 = codec1.clone();
+
+        let out1 = codec1.hasher.squeeze(16);
+        let out2 = codec2.hasher.squeeze(16);
+
+        assert_eq!(out1, out2, "Cloned codec should produce the same output");
+    }
+
+    #[test]
+    fn test_absorb_empty_does_not_break() {
+        let domain = b"empty-input-absorb-0000000000000";
+        let mut codec = ByteSchnorrCodec::<G1Projective, KeccakDuplexSponge>::new(domain);
+
+        codec.prover_message(b""); // no-op
+
+        let out = codec.hasher.squeeze(8);
+        assert_eq!(out.len(), 8);
+    }
+}
