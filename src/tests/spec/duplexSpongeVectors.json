@@ -19,11 +19,11 @@
     "Tag": "756e69745f74657374735f6b656363616b5f7461675f5f5f5f5f5f5f5f5f5f5f"
   },
   "test_absorb_empty_before_does_not_break": {
-    "Expected": "73e4a040a956f57693fb2b2dde8a8ea2c14d39ff8830060cd0301d6de25b2097ba858efedeeb89368eaf7c94a68f62835f932b5f0dd0ba376c48a0fdb5e21f0c",
+    "Expected": "d91be2c7040cadfb526be341a719003f7be94af94729a1b7cfb828e535b37ecf1e2b5918ebdbed90579202640c5a6cdf7cb2f2dc51c1072055bba24013eff4de",
     "HashFunction": "Keccak-f[1600] overwrite mode",
     "Operations": [
       {
-        "data": "48656c6c6f2c20576f726c6421",
+        "data": "414243444142434441424344414243444142434441424344414243444142434441424344414243444142434441424344414243444142434441424344",
         "type": "absorb"
       },
       {
@@ -76,11 +76,11 @@
     "Tag": "6162736f72622d6173736f6369617469766974792d646f6d61696e2d2d2d2d2d"
   },
   "test_keccak_duplex_sponge": {
-    "Expected": "73e4a040a956f57693fb2b2dde8a8ea2c14d39ff8830060cd0301d6de25b2097ba858efedeeb89368eaf7c94a68f62835f932b5f0dd0ba376c48a0fdb5e21f0c",
+    "Expected": "874ff8a1bfa87887da8e73c62f86824eb70b8a3beef06d41782e682cb96eb1d1b3ac1f946ef584a369af799f70fe3650963071e34dc59564ac395dc70450dfed",
     "HashFunction": "Keccak-f[1600] overwrite mode",
     "Operations": [
       {
-        "data": "48656c6c6f2c20576f726c6421",
+        "data": "31323334353637383930",
         "type": "absorb"
       },
       {
@@ -106,7 +106,7 @@
     "Tag": "6d756c74692d626c6f636b2d6162736f72622d746573745f5f5f5f5f5f5f5f5f"
   },
   "test_squeeze_zero_after_behavior": {
-    "Expected": "73e4a040a956f57693fb2b2dde8a8ea2c14d39ff8830060cd0301d6de25b2097ba858efedeeb89368eaf7c94a68f62835f932b5f0dd0ba376c48a0fdb5e21f0c",
+    "Expected": "31484eb01e26d3f2e5acf890f89812b5a9db30b572143a6bebbe4b91f750e8a6a980af66d329730bec8c42d31fa6af049e463d97e75ac5d371ad1b4c0e2094c2",
     "HashFunction": "Keccak-f[1600] overwrite mode",
     "Operations": [
       {
@@ -114,7 +114,7 @@
         "type": "squeeze"
       },
       {
-        "data": "48656c6c6f2c20576f726c6421",
+        "data": "6669727374",
         "type": "absorb"
       },
       {
@@ -125,7 +125,7 @@
     "Tag": "756e69745f74657374735f6b656363616b5f7461675f5f5f5f5f5f5f5f5f5f5f"
   },
   "test_squeeze_zero_behavior": {
-    "Expected": "73e4a040a956f57693fb2b2dde8a8ea2c14d39ff8830060cd0301d6de25b2097ba858efedeeb89368eaf7c94a68f62835f932b5f0dd0ba376c48a0fdb5e21f0c",
+    "Expected": "a2cd598f70b86fcb714a537fc2db8c41d41ff67eb6c52e7a530377a0b9c3341fee2da4c990c48d44f26a7d2e0bab76689dca3c94e8d4afd74c12e575148d2fd9",
     "HashFunction": "Keccak-f[1600] overwrite mode",
     "Operations": [
       {
@@ -133,7 +133,7 @@
         "type": "squeeze"
       },
       {
-        "data": "48656c6c6f2c20576f726c6421",
+        "data": "39383736353433323130",
         "type": "absorb"
       },
       {
